@@ -1,0 +1,8 @@
+[build]
+command = "cd backend && npm install"
+
+[deploy]
+startCommand = "node backend/src/server.js"
+
+[variables]
+NODE_ENV = "production"

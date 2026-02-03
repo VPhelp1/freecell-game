@@ -1,0 +1,23 @@
+{
+  "name": "freecell-variants",
+  "version": "1.0.0",
+  "description": "4 різні варіанти FreeCell з backend валідацією",
+  "main": "backend/src/server.js",
+  "scripts": {
+    "start": "node backend/src/server.js",
+    "dev": "cd backend && npm run dev",
+    "install-backend": "cd backend && npm install",
+    "build": "cd backend && npm install"
+  },
+  "keywords": [
+    "freecell",
+    "card-games",
+    "nodejs",
+    "express"
+  ],
+  "author": "VPhelp1",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

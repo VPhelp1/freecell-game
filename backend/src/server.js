@@ -10,6 +10,9 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
+// Статичні файли (публічна сторінка)
+app.use(express.static(path.join(__dirname, '../../public')));
+
 // Статичні файли (для тестера)
 app.use('/tester', express.static(path.join(__dirname, '../../')));
 
