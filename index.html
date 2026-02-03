@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreeCell (Справді остання версія)</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #004d00; color: white; text-align: center; margin: 0; padding: 1em; }
+        .controls { margin-bottom: 20px; }
+        .controls button { padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 8px; border: none; background-color: #f0f0f0; transition: background-color 0.2s; }
+        .controls button:hover { background-color: #ddd; }
+        #game-board { display: flex; flex-direction: column; align-items: center; }
+        #top-area { display: flex; justify-content: space-between; width: 100%; max-width: 800px; margin-bottom: 20px; }
+        .zone { display: flex; gap: 10px; }
+        .pile, .cell { width: 100px; min-height: 140px; border: 2px dashed #ffffff55; border-radius: 5px; position: relative; }
+        .card { width: 100px; height: 140px; background-color: white; border: 1px solid #333; border-radius: 5px; box-sizing: border-box; position: absolute; left: 0; cursor: pointer; user-select: none; font-size: 24px; font-weight: bold; display: flex; justify-content: center; align-items: center; transition: all 0.15s ease-in-out; }
+        .tableau-pile .card { top: 0; }
+        .card.hearts, .card.diamonds { color: red; }
+        .card.spades, .card.clubs { color: black; }
+        .card.selected { outline: 4px solid #00aaff; transform: scale(1.05); box-shadow: 0 0 15px #00aaff; z-index: 10; }
+        .message { margin-top: 15px; font-size: 18px; color: #ffeb3b; }
+    </style>
+</head>
+<body>
+    <h1>Пасьянс "Вільна комірка"</h1>
+    <div class="controls">
+        <button id="new-game-btn">Почати гру</button>
+    </div>
+    <div id="game-board">
+        <div id="top-area">
+            <div id="free-cells-container" class="zone"></div>
+            <div id="foundations-container" class="zone"></div>
+        </div>
+        <div id="tableau-container" class="zone"></div>
+    </div>
+    <div id="win-message" class="message" style="display: none;">Вітаю! Ви перемогли!</div>
+
+    <script>
+        // --- CORE GAME LOGIC (STABLE) ---
+        class Card { constructor(suit, rank) { this.suit = suit; this.rank = rank; } getColor() { return ['hearts', 'diamonds'].includes(this.suit) ? 'red' : 'black'; } getRankValue() { if (this.rank === 'A') return 1; if (this.rank === 'K') return 13; if (this.rank === 'Q') return 12; if (this.rank === 'J') return 11; return parseInt(this.rank, 10); } }
+        class FreeCellGame { constructor() { this.SUITS = ['hearts', 'diamonds', 'clubs', 'spades']; this.RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']; this.reset(); } reset() { this.tableau = Array(8).fill(null).map(() => []); this.freeCells = Array(4).fill(null); this.foundations = { hearts: [], diamonds: [], clubs: [], spades: [] }; this.deal(); } deal() { let deck = []; for (const suit of this.SUITS) { for (const rank of this.RANKS) { deck.push(new Card(suit, rank)); } } for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; } let cardIndex = 0; while (cardIndex < 52) { this.tableau[cardIndex % 8].push(deck[cardIndex++]); } } isValidTableauMove(card, destCard) { return card.getColor() !== destCard.getColor() && card.getRankValue() === destCard.getRankValue() - 1; } isValidFoundationMove(card, pile) { if (pile.length === 0) return card.getRankValue() === 1; const topCard = pile[pile.length - 1]; return card.suit === topCard.suit && card.getRankValue() === topCard.getRankValue() + 1; } move(from, to) { const card = this.getCard(from); if (!card) return false; let isValid = false; if (to.type === 'tableau') { const pile = this.tableau[to.index]; if (pile.length === 0) isValid = true; else isValid = this.isValidTableauMove(card, pile[pile.length - 1]); } else if (to.type === 'freeCell') { if (this.freeCells[to.index] === null) isValid = true; } else if (to.type === 'foundation') { isValid = this.isValidFoundationMove(card, this.foundations[to.suit]); } if (isValid) { this.removeCard(from); this.addCard(to, card); return true; } return false; } getCard(loc) { if (!loc) return null; if (loc.type === 'tableau') { const p = this.tableau[loc.index]; return p.length > 0 ? p[p.length - 1] : null; } if (loc.type === 'freeCell') { return this.freeCells[loc.index]; } return null; } removeCard(loc) { if (loc.type === 'tableau') this.tableau[loc.index].pop(); if (loc.type === 'freeCell') this.freeCells[loc.index] = null; } addCard(loc, card) { if (loc.type === 'tableau') this.tableau[loc.index].push(card); if (loc.type === 'freeCell') this.freeCells[loc.index] = card; if (loc.type === 'foundation') this.foundations[loc.suit].push(card); } isGameWon() { return Object.values(this.foundations).reduce((s, p) => s + p.length, 0) === 52; } }
+
+        // --- UI LOGIC (REBUILT FOR RELIABILITY) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            let game;
+            let selectedLocation = null;
+            const freeCellsContainer = document.getElementById('free-cells-container');
+            const foundationsContainer = document.getElementById('foundations-container');
+            const tableauContainer = document.getElementById('tableau-container');
+            const newGameBtn = document.getElementById('new-game-btn');
+            const winMessage = document.getElementById('win-message');
+
+            function createCardDiv(card) { const d = document.createElement('div'); d.className = `card ${card.suit}`; d.textContent = `${card.rank === '10' ? '10' : card.rank[0]}${{'hearts':'♥','diamonds':'♦','clubs':'♣','spades':'♠'}[card.suit]}`; return d; }
+
+            function render() {
+                [freeCellsContainer, foundationsContainer, tableauContainer].forEach(c => c.innerHTML = '');
+                winMessage.style.display = 'none';
+                const addClickListener = (element) => element.addEventListener('click', handleElementClick);
+
+                game.freeCells.forEach((card, index) => { const el = document.createElement('div'); el.className = 'cell'; el.dataset.type = 'freeCell'; el.dataset.index = index; if (card) el.appendChild(createCardDiv(card)); freeCellsContainer.appendChild(el); addClickListener(el); });
+                Object.keys(game.foundations).forEach(suit => { const pile = game.foundations[suit]; const el = document.createElement('div'); el.className = 'pile'; el.dataset.type = 'foundation'; el.dataset.suit = suit; if (pile.length > 0) el.appendChild(createCardDiv(pile[pile.length - 1])); foundationsContainer.appendChild(el); addClickListener(el); });
+                game.tableau.forEach((pile, index) => { const el = document.createElement('div'); el.className = 'pile tableau-pile'; el.dataset.type = 'tableau'; el.dataset.index = index; pile.forEach((card, i) => { const cardEl = createCardDiv(card); cardEl.style.top = `${i * 35}px`; el.appendChild(cardEl); }); tableauContainer.appendChild(el); addClickListener(el); });
+                
+                if (game.isGameWon()) { winMessage.style.display = 'block'; }
+            }
+
+            function handleElementClick(event) {
+                const target = event.currentTarget;
+                const location = { type: target.dataset.type, index: parseInt(target.dataset.index, 10), suit: target.dataset.suit };
+
+                if (selectedLocation) {
+                    game.move(selectedLocation, location);
+                    selectedLocation = null;
+                    render();
+                } else if (game.getCard(location)) {
+                    selectedLocation = location;
+                    const cardElement = target.querySelector('.card:last-child') || target;
+                    cardElement.classList.add('selected');
+                }
+            }
+            
+            function startNewGame() {
+                game = new FreeCellGame();
+                selectedLocation = null;
+                newGameBtn.textContent = 'Перезапустити';
+                render();
+            }
+
+            newGameBtn.addEventListener('click', startNewGame);
+            startNewGame(); // Automatically start the first game
+        });
+    </script>
+</body>
+</html>
