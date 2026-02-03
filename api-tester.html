@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreeCell API Тестер</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .section { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .output { background: #f8f9fa; border: 1px solid #ddd; padding: 15px; border-radius: 4px; margin: 10px 0; font-family: monospace; white-space: pre-wrap; max-height: 400px; overflow-y: auto; }
+        .game-types { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+        .game-type { border: 1px solid #ddd; padding: 15px; border-radius: 4px; cursor: pointer; }
+        .game-type.selected { border-color: #007bff; background: #e3f2fd; }
+        .move-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .game-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .stats { background: #e8f5e8; border: 1px solid #4caf50; }
+        select, input { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 FreeCell API Тестер</h1>
+        
+        <div class="section">
+            <h2>📡 Статус API</h2>
+            <button onclick="checkAPI()">Перевірити підключення</button>
+            <div id="api-status" class="output">Натисніть "Перевірити підключення"</div>
+        </div>
+
+        <div class="section">
+            <h2>🎲 Типи ігор</h2>
+            <button onclick="loadGameTypes()">Завантажити типи ігор</button>
+            <div id="game-types" class="game-types"></div>
+        </div>
+
+        <div class="section">
+            <h2>🎯 Створити гру</h2>
+            <div>
+                <select id="selected-game-type">
+                    <option value="freecell">Classic FreeCell</option>
+                    <option value="bakers_game">Baker's Game</option>
+                    <option value="eight_off">Eight Off</option>
+                    <option value="double_freecell">Double FreeCell</option>
+                </select>
+                <button onclick="createGame()">Створити гру</button>
+                <button onclick="resetCurrentGame()" id="reset-btn" disabled>Скинути гру</button>
+            </div>
+            <div id="game-creation" class="output"></div>
+        </div>
+
+        <div class="section">
+            <h2>🎮 Стан гри</h2>
+            <button onclick="getGameState()" id="state-btn" disabled>Оновити стан</button>
+            <div class="game-info">
+                <div id="game-info" class="output stats">Немає активної гри</div>
+                <div id="tableau-info" class="output">Таблон буде тут</div>
+                <div id="freecells-info" class="output">Вільні комірки</div>
+                <div id="foundations-info" class="output">Фундаменти</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🎯 Тестові ходи</h2>
+            <div class="move-controls">
+                <div>
+                    <h4>З позиції:</h4>
+                    <select id="from-type">
+                        <option value="tableau">Таблон</option>
+                        <option value="freeCell">Вільна комірка</option>
+                    </select>
+                    <input type="number" id="from-index" placeholder="Індекс" min="0" max="9" value="0">
+                </div>
+                <div>
+                    <h4>До позиції:</h4>
+                    <select id="to-type">
+                        <option value="tableau">Таблон</option>
+                        <option value="freeCell">Вільна комірка</option>
+                        <option value="foundation">Фундамент</option>
+                    </select>
+                    <input type="number" id="to-index" placeholder="Індекс" min="0" max="9" value="1">
+                    <input type="text" id="to-key" placeholder="Масть (для фундаменту)" style="display:none;">
+                </div>
+            </div>
+            <button onclick="makeMove()" id="move-btn" disabled>Зробити хід</button>
+            <div id="move-result" class="output"></div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Статистика</h2>
+            <button onclick="getStats()">Отримати статистику</button>
+            <div id="stats" class="output"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/games';
+        let currentGameId = null;
+
+        // Показати/сховати поле масті для фундаменту
+        document.getElementById('to-type').addEventListener('change', function() {
+            const keyField = document.getElementById('to-key');
+            keyField.style.display = this.value === 'foundation' ? 'block' : 'none';
+        });
+
+        async function checkAPI() {
+            try {
+                const response = await fetch('http://localhost:3001/');
+                const data = await response.json();
+                document.getElementById('api-status').textContent = 
+                    `✅ API працює!\n${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                document.getElementById('api-status').textContent = 
+                    `❌ Помилка: ${error.message}`;
+            }
+        }
+
+        async function loadGameTypes() {
+            try {
+                const response = await fetch(`${API_BASE}/types`);
+                const data = await response.json();
+                
+                const container = document.getElementById('game-types');
+                container.innerHTML = '';
+                
+                data.data.forEach(gameType => {
+                    const div = document.createElement('div');
+                    div.className = 'game-type';
+                    div.innerHTML = `
+                        <h4>${gameType.name}</h4>
+                        <p>${gameType.description}</p>
+                        <small>
+                            Вільні комірки: ${gameType.features.freeCells} | 
+                            Колоди: ${gameType.features.decks} | 
+                            Правило: ${gameType.features.moveRule}
+                        </small>
+                    `;
+                    div.onclick = () => {
+                        document.querySelectorAll('.game-type').forEach(el => el.classList.remove('selected'));
+                        div.classList.add('selected');
+                        document.getElementById('selected-game-type').value = gameType.type;
+                    };
+                    container.appendChild(div);
+                });
+            } catch (error) {
+                document.getElementById('game-types').innerHTML = `❌ Помилка: ${error.message}`;
+            }
+        }
+
+        async function createGame() {
+            const gameType = document.getElementById('selected-game-type').value;
+            try {
+                const response = await fetch(`${API_BASE}/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ gameType })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentGameId = data.data.gameId;
+                    document.getElementById('game-creation').textContent = 
+                        `✅ Гру створено!\nID: ${currentGameId}`;
+                    
+                    // Активувати кнопки
+                    document.getElementById('state-btn').disabled = false;
+                    document.getElementById('reset-btn').disabled = false;
+                    document.getElementById('move-btn').disabled = false;
+                    
+                    // Показати стан гри
+                    displayGameState(data.data.gameState);
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                document.getElementById('game-creation').textContent = `❌ Помилка: ${error.message}`;
+            }
+        }
+
+        async function getGameState() {
+            if (!currentGameId) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/${currentGameId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayGameState(data.data);
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                document.getElementById('game-info').textContent = `❌ Помилка: ${error.message}`;
+            }
+        }
+
+        function displayGameState(gameState) {
+            // Основна інформація
+            const info = `🎮 ${gameState.config.name}
+Ходів: ${gameState.moveCount}
+Перемога: ${gameState.gameWon ? '🏆 ТАК' : '❌ НІ'}
+Вільні комірки: ${gameState.config.freeCells}
+Колод: ${gameState.config.decks}`;
+            
+            document.getElementById('game-info').textContent = info;
+            
+            // Таблон
+            const tableauInfo = gameState.tableau.map((pile, i) => 
+                `Стовп ${i}: ${pile.length} карт${pile.length > 0 ? ` (верх: ${pile[pile.length-1].suit} ${pile[pile.length-1].rank})` : ''}`
+            ).join('\n');
+            
+            document.getElementById('tableau-info').textContent = 'ТАБЛОН:\n' + tableauInfo;
+            
+            // Вільні комірки  
+            const freeCellsInfo = gameState.freeCells.map((card, i) => 
+                `Комірка ${i}: ${card ? `${card.suit} ${card.rank}` : 'пуста'}`
+            ).join('\n');
+            
+            document.getElementById('freecells-info').textContent = 'ВІЛЬНІ КОМІРКИ:\n' + freeCellsInfo;
+            
+            // Фундаменти
+            const foundationsInfo = Object.entries(gameState.foundations).map(([key, pile]) => 
+                `${key}: ${pile.length} карт${pile.length > 0 ? ` (верх: ${pile[pile.length-1].rank})` : ''}`
+            ).join('\n');
+            
+            document.getElementById('foundations-info').textContent = 'ФУНДАМЕНТИ:\n' + foundationsInfo;
+        }
+
+        async function makeMove() {
+            if (!currentGameId) return;
+            
+            const fromType = document.getElementById('from-type').value;
+            const fromIndex = parseInt(document.getElementById('from-index').value);
+            const toType = document.getElementById('to-type').value;
+            const toIndex = parseInt(document.getElementById('to-index').value);
+            const toKey = document.getElementById('to-key').value;
+            
+            const from = { type: fromType, index: fromIndex };
+            const to = { type: toType, index: toIndex };
+            
+            if (toType === 'foundation') {
+                to.key = toKey || 'hearts';
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/${currentGameId}/move`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ from, to })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('move-result').textContent = 
+                        `✅ Хід успішний!\nКарта: ${data.data.move.card.suit} ${data.data.move.card.rank}`;
+                    displayGameState(data.data.gameState);
+                    
+                    if (data.data.gameState.gameWon) {
+                        alert('🏆 Вітаю! Ви перемогли!');
+                    }
+                } else {
+                    document.getElementById('move-result').textContent = `❌ ${data.error}`;
+                }
+            } catch (error) {
+                document.getElementById('move-result').textContent = `❌ Помилка: ${error.message}`;
+            }
+        }
+
+        async function resetCurrentGame() {
+            if (!currentGameId) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/${currentGameId}/reset`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayGameState(data.data);
+                    document.getElementById('move-result').textContent = '🔄 Гру скинуто!';
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                document.getElementById('move-result').textContent = `❌ Помилка: ${error.message}`;
+            }
+        }
+
+        async function getStats() {
+            try {
+                const response = await fetch(`${API_BASE}/stats/overview`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('stats').textContent = 
+                        `Всього ігор: ${data.data.totalGames}\n` +
+                        'По типам:\n' +
+                        Object.entries(data.data.gamesByType).map(([type, count]) => 
+                            `  ${type}: ${count}`
+                        ).join('\n');
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                document.getElementById('stats').textContent = `❌ Помилка: ${error.message}`;
+            }
+        }
+
+        // Автоматично перевірити API при завантаженні
+        window.addEventListener('load', () => {
+            checkAPI();
+            loadGameTypes();
+        });
+    </script>
+</body>
+</html>

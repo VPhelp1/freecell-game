@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const gameRoutes = require('./routes/gameRoutes');
 
 const app = express();
@@ -8,6 +9,9 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Статичні файли (для тестера)
+app.use('/tester', express.static(path.join(__dirname, '../../')));
 
 // Маршрути
 app.use('/api/games', gameRoutes);

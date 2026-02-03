@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Простий тест FreeCell API</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+        button { padding: 10px 20px; margin: 10px 0; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #0056b3; }
+        .output { background: #f8f9fa; border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 4px; white-space: pre-wrap; font-family: monospace; max-height: 300px; overflow-y: auto; }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        .step { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Простий тест FreeCell API</h1>
+    
+    <div class="step">
+        <h2>1️⃣ Перевірка з'єднання</h2>
+        <button onclick="testConnection()">Перевірити API</button>
+        <div id="connection-result" class="output">Натисніть кнопку для перевірки</div>
+    </div>
+
+    <div class="step">
+        <h2>2️⃣ Список ігор</h2>
+        <button onclick="testGameTypes()">Отримати типи ігор</button>
+        <div id="types-result" class="output">Натисніть кнопку для перевірки</div>
+    </div>
+
+    <div class="step">
+        <h2>3️⃣ Створення гри</h2>
+        <button onclick="testCreateGame()">Створити Classic FreeCell</button>
+        <button onclick="testCreateBakers()">Створити Baker's Game</button>
+        <div id="create-result" class="output">Натисніть кнопку для створення гри</div>
+    </div>
+
+    <div class="step">
+        <h2>4️⃣ Тестовий хід</h2>
+        <button onclick="testMove()">Спробувати хід</button>
+        <div id="move-result" class="output">Спочатку створіть гру</div>
+    </div>
+
+    <script>
+        let currentGameId = null;
+        const API_BASE = '/api/games'; // Використовуємо відносний шлях
+
+        function log(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `output ${isError ? 'error' : 'success'}`;
+        }
+
+        async function testConnection() {
+            try {
+                const response = await fetch('/');
+                const data = await response.json();
+                log('connection-result', `✅ Підключення успішне!\n\n${JSON.stringify(data, null, 2)}`);
+            } catch (error) {
+                log('connection-result', `❌ Помилка підключення: ${error.message}`, true);
+            }
+        }
+
+        async function testGameTypes() {
+            try {
+                const response = await fetch(`${API_BASE}/types`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const types = data.data.map(type => 
+                        `${type.name} (${type.type})\n  - ${type.description}\n  - Вільні комірки: ${type.features.freeCells}`
+                    ).join('\n\n');
+                    
+                    log('types-result', `✅ Знайдено ${data.data.length} типів ігор:\n\n${types}`);
+                } else {
+                    log('types-result', `❌ Помилка: ${data.error}`, true);
+                }
+            } catch (error) {
+                log('types-result', `❌ Помилка запиту: ${error.message}`, true);
+            }
+        }
+
+        async function testCreateGame(gameType = 'freecell') {
+            try {
+                const response = await fetch(`${API_BASE}/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ gameType })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentGameId = data.data.gameId;
+                    const state = data.data.gameState;
+                    
+                    // Підрахунок карт в таблоні
+                    const tableauCards = state.tableau.map((pile, i) => 
+                        `Стовп ${i}: ${pile.length} карт`
+                    ).join(', ');
+                    
+                    log('create-result', 
+`✅ Гру створено успішно!
+
+ID гри: ${currentGameId}
+Тип: ${state.config.name}
+Вільні комірки: ${state.config.freeCells}
+Колод: ${state.config.decks}
+
+Таблон: ${tableauCards}
+
+🎯 Тепер можна тестувати ходи!`);
+                } else {
+                    log('create-result', `❌ Помилка створення: ${data.error}`, true);
+                }
+            } catch (error) {
+                log('create-result', `❌ Помилка запиту: ${error.message}`, true);
+            }
+        }
+
+        async function testCreateBakers() {
+            await testCreateGame('bakers_game');
+        }
+
+        async function testMove() {
+            if (!currentGameId) {
+                log('move-result', '❌ Спочатку створіть гру!', true);
+                return;
+            }
+
+            try {
+                // Спробуємо перемістити верхню карту з стовпа 0 у вільну комірку 0
+                const response = await fetch(`${API_BASE}/${currentGameId}/move`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        from: { type: 'tableau', index: 0 },
+                        to: { type: 'freeCell', index: 0 }
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const card = data.data.move.card;
+                    log('move-result', 
+`✅ Хід успішний!
+
+Перемістили: ${card.suit} ${card.rank}
+З: Таблон стовп 0  
+До: Вільна комірка 0
+
+Ходів зроблено: ${data.data.gameState.moveCount}
+Статус: ${data.data.gameState.gameWon ? '🏆 ПЕРЕМОГА!' : '🎮 Гра триває'}`);
+                } else {
+                    log('move-result', `❌ Хід неможливий: ${data.error}`, true);
+                }
+            } catch (error) {
+                log('move-result', `❌ Помилка запиту: ${error.message}`, true);
+            }
+        }
+
+        // Автоматично перевірити підключення при завантаженні
+        window.addEventListener('load', testConnection);
+    </script>
+</body>
+</html>
