@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreeCell - Простий тест</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: Arial, sans-serif; background: #0d5f0d; color: white; 
+            padding: 10px; min-height: 100vh;
+        }
+        .container { max-width: 600px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .controls { text-align: center; margin-bottom: 20px; }
+        button { 
+            padding: 12px 24px; background: #2c5aa0; color: white; 
+            border: none; border-radius: 8px; cursor: pointer; 
+            font-size: 16px; margin: 5px; transition: all 0.2s;
+        }
+        button:hover { background: #1e3d6f; transform: scale(1.05); }
+        button:active { transform: scale(0.95); }
+        
+        .game-board { background: rgba(0,0,0,0.3); border-radius: 15px; padding: 20px; }
+        
+        .top-section { display: flex; justify-content: space-between; margin-bottom: 20px; gap: 15px; }
+        .freecells, .foundations { display: flex; gap: 8px; }
+        
+        .cell, .foundation { 
+            width: 60px; height: 80px; border: 2px solid #666; 
+            border-radius: 8px; background: rgba(0,0,0,0.4); 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 20px; cursor: pointer; transition: all 0.2s;
+        }
+        
+        .cell:hover, .foundation:hover { 
+            border-color: #ffd700; box-shadow: 0 0 10px rgba(255,215,0,0.3); 
+        }
+        
+        .tableau { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+        .pile { 
+            width: 60px; min-height: 80px; border: 2px dashed #666; 
+            border-radius: 8px; background: rgba(0,0,0,0.2); 
+            position: relative; cursor: pointer; transition: all 0.2s;
+        }
+        .pile:hover { border-color: #ffd700; }
+        
+        .card { 
+            width: 56px; height: 76px; background: white; color: black; 
+            border: 1px solid #333; border-radius: 6px; 
+            display: flex; flex-direction: column; justify-content: space-between; 
+            padding: 4px; font-size: 11px; font-weight: bold; 
+            position: absolute; left: 2px; cursor: pointer;
+            transition: all 0.15s; user-select: none;
+        }
+        
+        .card:hover { 
+            transform: scale(1.05); z-index: 10; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+        
+        .card.selected { 
+            border: 2px solid #00aaff; transform: scale(1.08); 
+            box-shadow: 0 0 20px rgba(0,170,255,0.6); z-index: 15;
+        }
+        
+        .card.red { color: #d32f2f; }
+        .card.black { color: #000; }
+        
+        .card-content { display: flex; align-items: center; gap: 2px; }
+        .card-bottom { transform: rotate(180deg); align-self: flex-end; opacity: 0.7; }
+        
+        .status-bar { 
+            background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; 
+            text-align: center; margin-top: 20px; font-size: 16px;
+        }
+        
+        .win-popup { 
+            display: none; position: fixed; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); background: linear-gradient(45deg, #4caf50, #45a049); 
+            color: white; padding: 30px; border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; z-index: 100;
+        }
+        
+        @media (max-width: 600px) {
+            .card { width: 48px; height: 64px; font-size: 9px; }
+            .cell, .foundation { width: 52px; height: 68px; font-size: 16px; }
+            .pile { width: 52px; min-height: 68px; }
+            .tableau { gap: 4px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 Classic FreeCell</h1>
+            <p>Тестова версія гри</p>
+        </div>
+
+        <div class="controls">
+            <button onclick="startGame()" id="newGameBtn">🎲 Нова гра</button>
+            <button onclick="moveAces()" id="acesBtn" style="display:none">🔝 Тузи вгору</button>
+            <button onclick="showHelp()" id="helpBtn">❓ Допомога</button>
+        </div>
+
+        <div class="game-board">
+            <div class="top-section">
+                <div class="freecells">
+                    <div class="cell" data-type="free" data-index="0" onclick="cellClick('free', 0)"></div>
+                    <div class="cell" data-type="free" data-index="1" onclick="cellClick('free', 1)"></div>
+                    <div class="cell" data-type="free" data-index="2" onclick="cellClick('free', 2)"></div>
+                    <div class="cell" data-type="free" data-index="3" onclick="cellClick('free', 3)"></div>
+                </div>
+                
+                <div class="foundations">
+                    <div class="foundation" data-suit="hearts" onclick="foundationClick('hearts')">♥</div>
+                    <div class="foundation" data-suit="diamonds" onclick="foundationClick('diamonds')">♦</div>
+                    <div class="foundation" data-suit="clubs" onclick="foundationClick('clubs')">♣</div>
+                    <div class="foundation" data-suit="spades" onclick="foundationClick('spades')">♠</div>
+                </div>
+            </div>
+            
+            <div class="tableau">
+                <div class="pile" data-index="0" onclick="pileClick(0)"></div>
+                <div class="pile" data-index="1" onclick="pileClick(1)"></div>
+                <div class="pile" data-index="2" onclick="pileClick(2)"></div>
+                <div class="pile" data-index="3" onclick="pileClick(3)"></div>
+                <div class="pile" data-index="4" onclick="pileClick(4)"></div>
+                <div class="pile" data-index="5" onclick="pileClick(5)"></div>
+                <div class="pile" data-index="6" onclick="pileClick(6)"></div>
+                <div class="pile" data-index="7" onclick="pileClick(7)"></div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <div>Ходів: <span id="moveCount">0</span> | Статус: <span id="gameStatus">Натисніть "Нова гра"</span></div>
+        </div>
+    </div>
+
+    <div class="win-popup" id="winPopup">
+        <h2>🏆 Перемога!</h2>
+        <p>Вітаю! Ви виграли в Classic FreeCell!</p>
+        <button onclick="startGame()">🎮 Грати ще раз</button>
+    </div>
+
+    <script>
+        // Простая игровая логика без внешних API
+        let gameData = {
+            tableau: [],
+            freeCells: [null, null, null, null],
+            foundations: { hearts: [], diamonds: [], clubs: [], spades: [] },
+            selected: null,
+            moveCount: 0
+        };
+
+        const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
+        const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        const symbols = { hearts: '♥', diamonds: '♦', clubs: '♣', spades: '♠' };
+
+        function createDeck() {
+            let deck = [];
+            suits.forEach(suit => {
+                ranks.forEach(rank => {
+                    deck.push({ suit, rank, id: suit + '-' + rank });
+                });
+            });
+            
+            // Перемешать колоду
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+            return deck;
+        }
+
+        function startGame() {
+            const deck = createDeck();
+            
+            // Сбросить игру
+            gameData = {
+                tableau: Array(8).fill(null).map(() => []),
+                freeCells: [null, null, null, null],
+                foundations: { hearts: [], diamonds: [], clubs: [], spades: [] },
+                selected: null,
+                moveCount: 0
+            };
+
+            // Раздать карты
+            deck.forEach((card, index) => {
+                gameData.tableau[index % 8].push(card);
+            });
+
+            updateDisplay();
+            document.getElementById('gameStatus').textContent = 'Игра началась! Кликайте на карты';
+            document.getElementById('acesBtn').style.display = 'inline-block';
+            document.getElementById('winPopup').style.display = 'none';
+        }
+
+        function updateDisplay() {
+            // Очистить все карты
+            document.querySelectorAll('.card').forEach(card => card.remove());
+            document.getElementById('moveCount').textContent = gameData.moveCount;
+
+            // Отобразить свободные ячейки
+            gameData.freeCells.forEach((card, index) => {
+                const cell = document.querySelector(`[data-type="free"][data-index="${index}"]`);
+                if (card) {
+                    cell.innerHTML = createCardHTML(card, 'cardClick');
+                } else {
+                    cell.innerHTML = '';
+                }
+            });
+
+            // Отобразить основания
+            Object.entries(gameData.foundations).forEach(([suit, pile]) => {
+                const foundation = document.querySelector(`[data-suit="${suit}"]`);
+                if (pile.length > 0) {
+                    const topCard = pile[pile.length - 1];
+                    foundation.innerHTML = createCardHTML(topCard, 'cardClick');
+                } else {
+                    foundation.innerHTML = symbols[suit];
+                }
+            });
+
+            // Отобразить таблон
+            gameData.tableau.forEach((pile, pileIndex) => {
+                const pileElement = document.querySelector(`[data-index="${pileIndex}"].pile`);
+                pileElement.innerHTML = '';
+                
+                pile.forEach((card, cardIndex) => {
+                    const cardDiv = document.createElement('div');
+                    cardDiv.innerHTML = createCardHTML(card, 'cardClick');
+                    const cardElement = cardDiv.firstChild;
+                    cardElement.style.top = (cardIndex * 18) + 'px';
+                    cardElement.style.zIndex = cardIndex + 1;
+                    
+                    // Только верхняя карта кликабельна
+                    if (cardIndex === pile.length - 1) {
+                        cardElement.onclick = () => cardClick(card);
+                    }
+                    
+                    pileElement.appendChild(cardElement);
+                });
+            });
+
+            // Проверить победу
+            if (checkWin()) {
+                setTimeout(() => {
+                    document.getElementById('winPopup').style.display = 'block';
+                    document.getElementById('gameStatus').textContent = '🏆 Победа!';
+                }, 500);
+            }
+        }
+
+        function createCardHTML(card, clickHandler) {
+            const color = ['hearts', 'diamonds'].includes(card.suit) ? 'red' : 'black';
+            return `
+                <div class="card ${color}" data-card-id="${card.id}">
+                    <div class="card-content">
+                        <span>${card.rank}</span>
+                        <span>${symbols[card.suit]}</span>
+                    </div>
+                    <div class="card-content card-bottom">
+                        <span>${card.rank}</span>
+                        <span>${symbols[card.suit]}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function cardClick(card) {
+            if (gameData.selected && gameData.selected.id === card.id) {
+                // Отменить выбор
+                clearSelection();
+                return;
+            }
+
+            clearSelection();
+            gameData.selected = card;
+            
+            const cardElement = document.querySelector(`[data-card-id="${card.id}"]`);
+            if (cardElement) {
+                cardElement.classList.add('selected');
+            }
+            
+            document.getElementById('gameStatus').textContent = `Выбрана: ${card.rank}${symbols[card.suit]}. Кликните куда переместить`;
+        }
+
+        function clearSelection() {
+            document.querySelectorAll('.card.selected').forEach(card => {
+                card.classList.remove('selected');
+            });
+            gameData.selected = null;
+        }
+
+        function cellClick(type, index) {
+            if (!gameData.selected) return;
+            
+            if (type === 'free' && gameData.freeCells[index] === null) {
+                moveCard(gameData.selected, 'freeCell', index);
+            }
+        }
+
+        function foundationClick(suit) {
+            if (!gameData.selected) return;
+            moveCard(gameData.selected, 'foundation', suit);
+        }
+
+        function pileClick(index) {
+            if (!gameData.selected) return;
+            moveCard(gameData.selected, 'tableau', index);
+        }
+
+        function moveCard(card, toType, toIndex) {
+            if (!isValidMove(card, toType, toIndex)) {
+                document.getElementById('gameStatus').textContent = 'Невозможный ход! Попробуйте другой';
+                setTimeout(() => {
+                    document.getElementById('gameStatus').textContent = 'Выберите карту для хода';
+                }, 2000);
+                return;
+            }
+
+            // Найти и удалить карту из источника
+            removeCardFromSource(card);
+            
+            // Добавить в назначение
+            if (toType === 'freeCell') {
+                gameData.freeCells[toIndex] = card;
+            } else if (toType === 'foundation') {
+                gameData.foundations[toIndex].push(card);
+            } else if (toType === 'tableau') {
+                gameData.tableau[toIndex].push(card);
+            }
+
+            gameData.moveCount++;
+            clearSelection();
+            updateDisplay();
+            
+            document.getElementById('gameStatus').textContent = `Ход выполнен! Ходов: ${gameData.moveCount}`;
+        }
+
+        function removeCardFromSource(card) {
+            // Поиск в свободных ячейках
+            for (let i = 0; i < gameData.freeCells.length; i++) {
+                if (gameData.freeCells[i] && gameData.freeCells[i].id === card.id) {
+                    gameData.freeCells[i] = null;
+                    return;
+                }
+            }
+            
+            // Поиск в основаниях
+            Object.keys(gameData.foundations).forEach(suit => {
+                const pile = gameData.foundations[suit];
+                if (pile.length > 0 && pile[pile.length - 1].id === card.id) {
+                    pile.pop();
+                    return;
+                }
+            });
+            
+            // Поиск в таблоне
+            gameData.tableau.forEach(pile => {
+                if (pile.length > 0 && pile[pile.length - 1].id === card.id) {
+                    pile.pop();
+                }
+            });
+        }
+
+        function isValidMove(card, toType, toIndex) {
+            if (toType === 'freeCell') {
+                return gameData.freeCells[toIndex] === null;
+            }
+            
+            if (toType === 'foundation') {
+                const pile = gameData.foundations[toIndex];
+                if (pile.length === 0) {
+                    return card.rank === 'A' && card.suit === toIndex;
+                }
+                const topCard = pile[pile.length - 1];
+                return card.suit === topCard.suit && getRankValue(card.rank) === getRankValue(topCard.rank) + 1;
+            }
+            
+            if (toType === 'tableau') {
+                const pile = gameData.tableau[toIndex];
+                if (pile.length === 0) return true;
+                
+                const topCard = pile[pile.length - 1];
+                const cardColor = getCardColor(card.suit);
+                const topColor = getCardColor(topCard.suit);
+                
+                return cardColor !== topColor && getRankValue(card.rank) === getRankValue(topCard.rank) - 1;
+            }
+            
+            return false;
+        }
+
+        function getRankValue(rank) {
+            if (rank === 'A') return 1;
+            if (rank === 'J') return 11;
+            if (rank === 'Q') return 12;
+            if (rank === 'K') return 13;
+            return parseInt(rank, 10);
+        }
+
+        function getCardColor(suit) {
+            return ['hearts', 'diamonds'].includes(suit) ? 'red' : 'black';
+        }
+
+        function checkWin() {
+            return Object.values(gameData.foundations).every(pile => pile.length === 13);
+        }
+
+        function moveAces() {
+            let moved = false;
+            gameData.tableau.forEach((pile, pileIndex) => {
+                if (pile.length > 0) {
+                    const topCard = pile[pile.length - 1];
+                    if (topCard.rank === 'A') {
+                        if (gameData.foundations[topCard.suit].length === 0) {
+                            pile.pop();
+                            gameData.foundations[topCard.suit].push(topCard);
+                            gameData.moveCount++;
+                            moved = true;
+                        }
+                    }
+                }
+            });
+            
+            if (moved) {
+                updateDisplay();
+                document.getElementById('gameStatus').textContent = 'Тузы перемещены!';
+            } else {
+                document.getElementById('gameStatus').textContent = 'Нет доступных тузов для перемещения';
+            }
+        }
+
+        function showHelp() {
+            alert(`🎮 Как играть в FreeCell:
+
+1. Цель: переместить все карты в основания (♥♦♣♠) от туза до короля
+
+2. Правила перемещения:
+   • В таблоне: карты разных цветов по убыванию (К, Д, В, 10...)
+   • В основаниях: карты одной масти по возрастанию (Т, 2, 3, 4...)
+   • В свободных ячейках: любая одна карта
+
+3. Управление:
+   • Клик на карту - выбрать
+   • Клик на место - переместить
+   • "Тузи вгору" - автоматически переместить тузы
+
+Удачи! 🍀`);
+        }
+
+        // Автозапуск при загрузке
+        window.onload = function() {
+            setTimeout(startGame, 500);
+        };
+    </script>
+</body>
+</html>

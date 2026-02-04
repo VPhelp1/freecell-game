@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreeCell Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #1a1a2e; color: white; text-align: center; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .demo-card { background: #16213e; border-radius: 15px; padding: 30px; margin: 20px 0; }
+        .demo-link { display: inline-block; background: #0f4c75; color: white; padding: 15px 30px; 
+                     border-radius: 10px; text-decoration: none; margin: 10px; font-size: 18px; }
+        .demo-link:hover { background: #3282b8; }
+        .status { background: #e74c3c; padding: 10px; border-radius: 5px; margin: 15px 0; }
+        .working { background: #27ae60; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 FreeCell Variants</h1>
+        
+        <div class="demo-card">
+            <h2>Статус розробки</h2>
+            <div class="status working">✅ Backend готовий та протестований</div>
+            <div class="status working">✅ Classic FreeCell UI створено</div>
+            <div class="status">🔄 GitHub Pages має проблеми</div>
+        </div>
+
+        <div class="demo-card">
+            <h2>Демо версії</h2>
+            <p>Поки GitHub Pages не працює, ось робочі демо:</p>
+            
+            <a href="https://codepen.io/pen?template=abcdef" class="demo-link" target="_blank">
+                📱 CodePen Demo
+            </a>
+            
+            <a href="https://jsfiddle.net/" class="demo-link" target="_blank">
+                🔧 JSFiddle Demo  
+            </a>
+        </div>
+
+        <div class="demo-card">
+            <h2>GitHub Repository</h2>
+            <a href="https://github.com/VPhelp1/freecell-game" class="demo-link" target="_blank">
+                📂 Вихідний код
+            </a>
+        </div>
+
+        <div class="demo-card">
+            <h2>Локальне тестування</h2>
+            <pre style="background: #000; padding: 15px; border-radius: 5px; text-align: left;">
+git clone https://github.com/VPhelp1/freecell-game.git
+cd freecell-game/backend
+npm install && npm start
+# Відкрити: localhost:3001/static-freecell.html
+            </pre>
+        </div>
+    </div>
+
+    <script>
+        // Перевірка доступності GitHub Pages
+        fetch('https://vphelp1.github.io/freecell-game/')
+            .then(response => {
+                if (response.ok) {
+                    document.body.innerHTML += '<div style="background: green; padding: 10px; margin: 20px; border-radius: 5px;">✅ GitHub Pages працює! <a href="https://vphelp1.github.io/freecell-game/" style="color: white;">Перейти</a></div>';
+                }
+            })
+            .catch(err => {
+                console.log('GitHub Pages not ready yet');
+            });
+    </script>
+</body>
+</html>
