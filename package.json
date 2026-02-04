@@ -5,9 +5,8 @@
   "main": "backend/src/server.js",
   "scripts": {
     "start": "node backend/src/server.js",
-    "dev": "cd backend && npm run dev",
-    "install-backend": "cd backend && npm install",
-    "build": "cd backend && npm install"
+    "build": "cd backend && npm install",
+    "postinstall": "cd backend && npm install"
   },
   "keywords": [
     "freecell",
