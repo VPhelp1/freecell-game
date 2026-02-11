@@ -1,10 +1,12 @@
 services:
   - type: web
-    name: freecell-backend
+    name: freecell-game-backend
     env: node
     plan: free
     buildCommand: cd backend && npm install
-    startCommand: cd backend && npm start
+    startCommand: node backend/src/server.js
     envVars:
       - key: NODE_ENV
         value: production
+    region: oregon
+    branch: main

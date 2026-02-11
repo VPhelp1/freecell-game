@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 FreeCell Demo - Redirecting...</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        h1 { margin: 0 0 20px 0; font-size: 2em; }
+        p { margin: 10px 0; opacity: 0.9; }
+        .link {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            margin-top: 20px;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        .link:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+        .info {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 FreeCell Demo</h1>
+        <p>Завантаження гри...</p>
+        
+        <a href="https://raw.githubusercontent.com/VPhelp1/freecell-game/main/standalone.html" class="link">
+            ▶️ Натисни щоб почати гру
+        </a>
+        
+        <div class="info">
+            <p><strong>Якщо автоматично не відкрилося:</strong></p>
+            <p>1. Натисни кнопку вище</p>
+            <p>2. Коли відкриється код, скопіюй URL з браузера</p>
+            <p>3. Відкрий в новій вкладці або створи HTML файл</p>
+            <p><em>Або краще: натисни правою кнопкою → "Зберегти як..." і відкрой файл</em></p>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-redirect after 2 seconds
+        setTimeout(() => {
+            window.location.href = 'https://raw.githubusercontent.com/VPhelp1/freecell-game/main/standalone.html';
+        }, 2000);
+    </script>
+</body>
+</html>
