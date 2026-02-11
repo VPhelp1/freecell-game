@@ -1,0 +1,3 @@
+# Vercel static configuration
+
+Serve static files directly, show index.html without API backend
