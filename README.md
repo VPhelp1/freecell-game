@@ -1,172 +1,59 @@
-# 🎮 FreeCell - Full Game
+# FreeCell Game
 
-**Працює повністю в браузері! Безкоштовно, без реєстрації, без backend!**
+![FreeCell Game](https://img.shields.io/badge/FreeCell-Game-green)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Deploy](https://img.shields.io/badge/deploy-Vercel-black)
 
----
+## 🎮 About
 
-## ⚡ ШВИДКИЙ СТАРТ:
+FreeCell Variants - 4 different variants of classic FreeCell card game:
+- **Classic FreeCell** - Standard rules with 4 free cells
+- **Baker's Game** - Same suit rule with 4 free cells
+- **Eight Off** - 8 free cells available
+- **Double FreeCell** - Double deck with 104 cards
 
-### ВАРІАНТ 1: Грай прямо зараз!
+## 🚀 Deployment
 
-1. Скачай файл `index.html` або `full-game.html`
-2. Відкрий в браузере (Chrome, Firefox, Safari, Edge)
-3. Вибери тип гри:
-   - 🃏 Classic FreeCell
-   - 🥧 Baker's Game
-   - 8️⃣ Eight Off
-   - 👯 Double FreeCell
-4. Грай! 🎉
+- **GitHub:** https://github.com/VPhelp1/freecell-game
+- **Vercel:** https://freecell-game.vercel.app
 
-### ВАРІАНТ 2: GitHub Pages
+## 🎯 Features
 
-👉 **https://vphelp1.github.io/freecell-game/full-game.html**
+- ✅ Mobile-friendly design
+- ✅ Classic green card table background
+- ✅ Touch support for mobile devices
+- ✅ Undo functionality
+- ✅ Auto-play moves
+- ✅ 4 game variants
+- ✅ Works completely in browser (no backend required)
 
-Просто відкрой посилання в браузере!
+## 🎮 How to Play
 
----
+1. Choose a game variant from the main menu
+2. Click cards to select them
+3. Click destination to move cards
+4. Build foundations from Ace to King by suit
+5. Build tableau columns in descending order
 
-## 🎯 4 ВАРІАНТИ ГРИ:
+## 📱 Mobile Support
 
-### 1. 🃏 Classic FreeCell
-- 4 вільні комірки
-- 8 стовпців в таблоні
-- Правило: різні кольори (червона поверх чорної і навпаки)
+The game is optimized for mobile devices with:
+- Responsive design
+- Touch-friendly controls
+- Smaller card sizes on mobile screens
+- Swipe gestures support
 
-### 2. 🥧 Baker's Game
-- 4 вільні комірки
-- 8 стовпців в таблоні
-- Правило: та сама масть
+## 🛠️ Tech Stack
 
-### 3. 8️⃣ Eight Off
-- **8 вільних комірок!**
-- 8 стовпців в таблоні
-- Правило: різні кольори
+- HTML5
+- CSS3
+- Vanilla JavaScript
+- Vercel hosting
 
-### 4. 👯 Double FreeCell
-- **Подвійна колода!** (104 карти)
-- 10 стовпців в таблоні
-- 8 фундаментів
-- Правило: різні кольори
+## 📝 License
 
----
-
-## 🎮 ПРАВИЛА ГРИ:
-
-### 📋 Мета:
-Перемістити всі карти з таблона в фундаменти по мастях від Туза до Короля.
-
-### 🔓 Вільні комірки:
-- Використовуйте для тимчасового зберігання карт
-- Максимально 1 карта в кожній комірці
-- Восьми Off має 8 комірок!
-
-### 📋 Таблон (Tableau):
-**Classic FreeCell / Eight Off / Double:**
-- Карта має бути іншого кольору (червона поверх чорної і навпаки)
-- Карта має бути на один пункт менша (наприклад, 5♥ поверх 6♣)
-
-**Baker's Game:**
-- Карта має бути тієї самої масті
-- Карта має бути на один пункт менша (наприклад, 5♥ поверх 6♥)
-
-### 🏆 Фундаменти:
-- Карти переміщуються за мастями
-- Послідовність від Туза до Короля: A → 2 → 3 → ... → K
-- Double FreeCell має 8 фундаментів (4×2)
+MIT License - feel free to use and modify!
 
 ---
 
-## 🎯 КЕРУВАННЯ:
-
-| Дія | Як зробити |
-|-----|-----------|
-| Вибрати гру | Натисни на картку гри |
-| Вибрати карту | Клік по карті |
-| Перемістити карту | Клік по пустому місцю або іншій карті |
-| Скасувати хід | ↩️ Undo кнопка |
-| Автоход | 🤖 Автоход кнопка |
-| Нова гра | 🎮 Нова гра кнопка |
-| Повернутися до меню | ← Повернутися до меню |
-| Довідка | ❓ Довідка кнопка |
-
----
-
-## ✅ ОСОБЛИВОСТІ:
-
-✅ **Безкоштовно** - жодних платежів  
-✅ **Без реєстрації** - просто відкривай і грай  
-✅ **Працює офлайн** - після завантаження не потрібен інтернет  
-✅ **4 варіанти гри** - різні правила і складність  
-✅ **Undo функція** - скасування ходів  
-✅ **Автоход** - автоматичні ходи  
-✅ **Красивий дизайн** - градієнти, анімації  
-✅ **Responsive** - працює на мобільних і планшетах  
-✅ **Без backend** - все працює в браузере  
-✅ **Швидко** - миттєвий старт  
-
----
-
-## 📱 Мобільні пристрої:
-
-Гра працює на мобільних! Просто відкрой HTML файл в браузере на телефоні/планшеті.
-
-**Android:**
-- Скачай файл
-- Відкрой в Chrome або іншому браузері
-
-**iOS:**
-- Скачай файл
-- Відкрой в Safari або Files app
-
----
-
-## 🔧 ТЕХНІЧНІ ВИМОГИ:
-
-- **Браузер:** Chrome, Firefox, Safari, Edge (будь-який сучасний браузер)
-- **Інтернет:** Не потрібен після завантаження
-- **JavaScript:** Має бути увімкнено
-- **Розмір файлу:** ~100 KB
-- **Карти:** 52 (стандартна) або 104 (Double FreeCell)
-
----
-
-## 🎯 ТРИШКИ СТРАТЕГІЇ:
-
-### Classic FreeCell:
-- Використовуйте вільні комірки стратегічно
-- Спочатку переміщуйте карти до фундаментів
-- Тримайте простір в таблоні відкритим
-
-### Baker's Game:
-- Згрупуйте карти за мастями в таблоні
-- Зосередьтеся на одній масті за раз
-- Вільні комірки критичні для переміщень
-
-### Eight Off:
-- 8 комірок дають більше свободи
-- Більше можливостей для маневру
-- Стратегія схожа на Classic але з більшими можливостями
-
-### Double FreeCell:
-- 104 карти = довша гра
-- Зосередьтеся на одному фундаменті за раз
-- Плануйте ходи заздалегідь
-
----
-
-## 📊 Порівняння варіантів:
-
-| Варіант | Колоди | Комірки | Стовпці | Фундаменти | Складність |
-|---------|--------|---------|---------|------------|-----------|
-| Classic FreeCell | 1 | 4 | 8 | 4 | ⭐⭐⭐ |
-| Baker's Game | 1 | 4 | 8 | 4 | ⭐⭐⭐⭐ |
-| Eight Off | 1 | 8 | 8 | 4 | ⭐⭐ |
-| Double FreeCell | 2 | 4 | 10 | 8 | ⭐⭐⭐⭐⭐ |
-
----
-
-## 🎉 ГОТОВИЙ ДО ГРИ!
-
-Просто відкрой файл і грай! Насолоджуйся класичною грою FreeCell в усіх варіантах!
-
-**Happy Gaming! 🃏**
+**Enjoy the game! 🎴**

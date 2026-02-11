@@ -1,326 +1,62 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classic FreeCell - Test</title>
+    <title>FreeCell Game - Test</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
-            font-family: Arial, sans-serif; background: #0d5f0d; color: white; 
-            user-select: none; min-height: 100vh; padding: 10px;
+            background: #1a472a;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            text-align: center;
         }
-        .game-container { max-width: 800px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 15px; }
-        .controls { text-align: center; margin-bottom: 15px; }
-        button { padding: 8px 16px; background: #2c5aa0; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
-        
-        .top-area { display: flex; justify-content: space-between; margin-bottom: 15px; gap: 10px; }
-        .freecells, .foundations { display: flex; gap: 8px; }
-        
-        .cell, .foundation { 
-            width: 60px; height: 80px; border: 2px solid #666; border-radius: 5px; 
-            background: rgba(0,0,0,0.2); position: relative; display: flex; 
-            align-items: center; justify-content: center; font-size: 24px;
+        .container { padding: 20px; }
+        h1 { font-size: 2em; margin-bottom: 20px; }
+        .status { 
+            background: rgba(0,0,0,0.3); 
+            padding: 20px; 
+            border-radius: 10px; 
+            margin: 20px 0;
         }
-        
-        .tableau { display: flex; gap: 5px; justify-content: center; }
-        .pile { 
-            min-width: 60px; min-height: 80px; border: 2px dashed #666; 
-            border-radius: 5px; position: relative; flex: 1;
+        .success { color: #4CAF50; }
+        .info { color: #2196F3; }
+        .button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 20px;
+            font-size: 1.2em;
+            cursor: pointer;
+            margin: 10px;
+            display: inline-block;
+            text-decoration: none;
         }
-        
-        .card { 
-            width: 56px; height: 76px; background: white; color: black; 
-            border: 1px solid #333; border-radius: 4px; position: absolute; 
-            display: flex; flex-direction: column; justify-content: space-between; 
-            padding: 2px; font-size: 12px; font-weight: bold; cursor: pointer;
-            left: 2px;
-        }
-        
-        .card.selected { border: 2px solid #00f; box-shadow: 0 0 10px #00f; }
-        .card.red { color: red; }
-        .card.black { color: black; }
-        
-        .card-content { display: flex; align-items: center; gap: 1px; }
-        .card-bottom { transform: rotate(180deg); align-self: flex-end; opacity: 0.7; }
-        
-        .status { text-align: center; margin-top: 15px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; }
-        .win-msg { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-                   background: green; padding: 20px; border-radius: 10px; z-index: 100; }
-        
-        @media (max-width: 600px) {
-            .card { width: 48px; height: 64px; font-size: 10px; }
-            .cell, .foundation { width: 52px; height: 68px; }
-            .pile { min-width: 52px; min-height: 68px; }
-        }
+        .button:hover { background: #45a049; }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <div class="header">
-            <h2>🎮 Classic FreeCell</h2>
-            <div class="controls">
-                <button onclick="newGame()">Нова гра</button>
-                <button onclick="autoMove()">Авто туз</button>
-            </div>
-        </div>
-
-        <div class="top-area">
-            <div class="freecells">
-                <div class="cell" id="free0"></div>
-                <div class="cell" id="free1"></div>
-                <div class="cell" id="free2"></div>
-                <div class="cell" id="free3"></div>
-            </div>
-            <div class="foundations">
-                <div class="foundation" id="found-hearts">♥</div>
-                <div class="foundation" id="found-diamonds">♦</div>
-                <div class="foundation" id="found-clubs">♣</div>
-                <div class="foundation" id="found-spades">♠</div>
-            </div>
-        </div>
-
-        <div class="tableau" id="tableau">
-            <div class="pile" id="pile0"></div>
-            <div class="pile" id="pile1"></div>
-            <div class="pile" id="pile2"></div>
-            <div class="pile" id="pile3"></div>
-            <div class="pile" id="pile4"></div>
-            <div class="pile" id="pile5"></div>
-            <div class="pile" id="pile6"></div>
-            <div class="pile" id="pile7"></div>
-        </div>
-
+    <div class="container">
+        <h1>🎮 FreeCell Test Page</h1>
         <div class="status">
-            <div>Ходів: <span id="moves">0</span> | Статус: <span id="status">Готово</span></div>
+            <p class="success">✅ Vercel deployment works!</p>
+            <p class="info">🟢 Background color: #1a472a (green)</p>
+            <p>📱 Mobile-friendly: Yes</p>
+            <p>🚀 API: No dependency</p>
         </div>
+        <p>Loading main game...</p>
+        <script>
+            setTimeout(function() {
+                window.location.href = 'index.html';
+            }, 3000);
+        </script>
+        <a href="index.html" class="button">Go to Game</a>
     </div>
-
-    <div class="win-msg" id="win">
-        <h3>🏆 Перемога!</h3>
-        <button onclick="newGame()">Ще раз</button>
-    </div>
-
-    <script>
-        // FreeCell game - will try backend first, fallback to local
-        const API_BASE = 'https://freecell-api.serveo.net/api/games'; // Will update with real URL
-        let game = {
-            tableau: Array(8).fill(null).map(() => []),
-            freeCells: Array(4).fill(null),
-            foundations: { hearts: [], diamonds: [], clubs: [], spades: [] },
-            selected: null,
-            moves: 0
-        };
-
-        const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
-        const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-        const suitSymbols = { hearts: '♥', diamonds: '♦', clubs: '♣', spades: '♠' };
-
-        function createDeck() {
-            const deck = [];
-            suits.forEach(suit => {
-                ranks.forEach(rank => {
-                    deck.push({ suit, rank, id: `${suit}-${rank}` });
-                });
-            });
-            return shuffle(deck);
-        }
-
-        function shuffle(deck) {
-            for (let i = deck.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [deck[i], deck[j]] = [deck[j], deck[i]];
-            }
-            return deck;
-        }
-
-        function newGame() {
-            const deck = createDeck();
-            
-            // Reset game
-            game.tableau = Array(8).fill(null).map(() => []);
-            game.freeCells = Array(4).fill(null);
-            game.foundations = { hearts: [], diamonds: [], clubs: [], spades: [] };
-            game.selected = null;
-            game.moves = 0;
-
-            // Deal cards
-            deck.forEach((card, i) => {
-                game.tableau[i % 8].push(card);
-            });
-
-            updateDisplay();
-            document.getElementById('status').textContent = 'Гра розпочата';
-            document.getElementById('win').style.display = 'none';
-        }
-
-        function updateDisplay() {
-            // Clear all
-            document.querySelectorAll('.card').forEach(c => c.remove());
-            
-            // Update move count
-            document.getElementById('moves').textContent = game.moves;
-
-            // Render freecells
-            game.freeCells.forEach((card, i) => {
-                const cell = document.getElementById(`free${i}`);
-                cell.innerHTML = card ? createCardHTML(card) : '';
-                if (card) {
-                    cell.firstChild.onclick = () => selectCard(card, 'free', i);
-                }
-            });
-
-            // Render foundations
-            Object.entries(game.foundations).forEach(([suit, pile]) => {
-                const foundation = document.getElementById(`found-${suit}`);
-                if (pile.length > 0) {
-                    const card = pile[pile.length - 1];
-                    foundation.innerHTML = createCardHTML(card);
-                    foundation.firstChild.onclick = () => selectCard(card, 'foundation', suit);
-                } else {
-                    foundation.innerHTML = suitSymbols[suit];
-                }
-                foundation.onclick = () => tryMoveTo('foundation', suit);
-            });
-
-            // Render tableau
-            game.tableau.forEach((pile, pileIndex) => {
-                const pileEl = document.getElementById(`pile${pileIndex}`);
-                pileEl.innerHTML = '';
-                pile.forEach((card, cardIndex) => {
-                    const cardEl = document.createElement('div');
-                    cardEl.innerHTML = createCardHTML(card);
-                    cardEl.firstChild.style.top = `${cardIndex * 18}px`;
-                    cardEl.firstChild.onclick = () => {
-                        if (cardIndex === pile.length - 1) { // Only top card
-                            selectCard(card, 'tableau', pileIndex);
-                        }
-                    };
-                    pileEl.appendChild(cardEl.firstChild);
-                });
-                
-                // Click empty pile
-                if (pile.length === 0) {
-                    pileEl.onclick = () => tryMoveTo('tableau', pileIndex);
-                }
-            });
-
-            // Check win
-            if (Object.values(game.foundations).every(pile => pile.length === 13)) {
-                document.getElementById('win').style.display = 'block';
-                document.getElementById('status').textContent = '🏆 Перемога!';
-            }
-        }
-
-        function createCardHTML(card) {
-            const color = ['hearts', 'diamonds'].includes(card.suit) ? 'red' : 'black';
-            return `
-                <div class="card ${color}" data-id="${card.id}">
-                    <div class="card-content">
-                        <span>${card.rank}</span><span>${suitSymbols[card.suit]}</span>
-                    </div>
-                    <div class="card-content card-bottom">
-                        <span>${card.rank}</span><span>${suitSymbols[card.suit]}</span>
-                    </div>
-                </div>
-            `;
-        }
-
-        function selectCard(card, type, index) {
-            // Clear previous selection
-            document.querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
-            
-            if (game.selected && game.selected.card.id === card.id) {
-                game.selected = null; // Deselect
-                return;
-            }
-
-            game.selected = { card, type, index };
-            document.querySelector(`[data-id="${card.id}"]`).classList.add('selected');
-        }
-
-        function tryMoveTo(toType, toIndex) {
-            if (!game.selected) return;
-
-            const { card, type: fromType, index: fromIndex } = game.selected;
-            
-            if (isValidMove(card, toType, toIndex)) {
-                // Remove from source
-                if (fromType === 'free') {
-                    game.freeCells[fromIndex] = null;
-                } else if (fromType === 'foundation') {
-                    game.foundations[fromIndex].pop();
-                } else if (fromType === 'tableau') {
-                    game.tableau[fromIndex].pop();
-                }
-
-                // Add to destination
-                if (toType === 'free') {
-                    game.freeCells[toIndex] = card;
-                } else if (toType === 'foundation') {
-                    game.foundations[toIndex].push(card);
-                } else if (toType === 'tableau') {
-                    game.tableau[toIndex].push(card);
-                }
-
-                game.moves++;
-                game.selected = null;
-                updateDisplay();
-            }
-        }
-
-        function isValidMove(card, toType, toIndex) {
-            if (toType === 'free') {
-                return game.freeCells[toIndex] === null;
-            }
-            
-            if (toType === 'foundation') {
-                const pile = game.foundations[toIndex];
-                if (pile.length === 0) {
-                    return card.rank === 'A' && card.suit === toIndex;
-                }
-                const topCard = pile[pile.length - 1];
-                return card.suit === topCard.suit && getRankValue(card.rank) === getRankValue(topCard.rank) + 1;
-            }
-            
-            if (toType === 'tableau') {
-                const pile = game.tableau[toIndex];
-                if (pile.length === 0) return true;
-                
-                const topCard = pile[pile.length - 1];
-                const cardColor = ['hearts', 'diamonds'].includes(card.suit) ? 'red' : 'black';
-                const topColor = ['hearts', 'diamonds'].includes(topCard.suit) ? 'red' : 'black';
-                
-                return cardColor !== topColor && getRankValue(card.rank) === getRankValue(topCard.rank) - 1;
-            }
-            
-            return false;
-        }
-
-        function getRankValue(rank) {
-            if (rank === 'A') return 1;
-            if (rank === 'J') return 11;
-            if (rank === 'Q') return 12;
-            if (rank === 'K') return 13;
-            return parseInt(rank);
-        }
-
-        function autoMove() {
-            // Auto-move aces to foundations
-            game.tableau.forEach((pile, i) => {
-                if (pile.length > 0) {
-                    const topCard = pile[pile.length - 1];
-                    if (topCard.rank === 'A') {
-                        game.selected = { card: topCard, type: 'tableau', index: i };
-                        tryMoveTo('foundation', topCard.suit);
-                    }
-                }
-            });
-        }
-
-        // Start game
-        newGame();
-    </script>
 </body>
 </html>
