@@ -80,11 +80,15 @@ class BaseGame {
    * Перевірка валідності ходу в таблоні
    */
   isValidTableauMove(card, destinationCard) {
+    // Якщо таблон порожній - карту можна покласти
+    if (!destinationCard) return true;
+
+    // Перевірка відповідно до правила
     if (this.config.moveRule === MOVE_RULES.ALTERNATING_COLOR) {
-      return card.getColor() !== destinationCard.getColor() && 
+      return card.getColor() !== destinationCard.getColor() &&
              card.getRankValue() === destinationCard.getRankValue() - 1;
     } else if (this.config.moveRule === MOVE_RULES.SAME_SUIT) {
-      return card.suit === destinationCard.suit && 
+      return card.suit === destinationCard.suit &&
              card.getRankValue() === destinationCard.getRankValue() - 1;
     }
     return false;
@@ -101,6 +105,113 @@ class BaseGame {
     const topCard = foundationPile[foundationPile.length - 1];
     return card.suit === topCard.suit && 
            card.getRankValue() === topCard.getRankValue() + 1;
+  }
+
+  /**
+   * Отримати максимальну кількість карт які можна перемістити
+   */
+  getMaxMovableCards() {
+    const emptyFreeCells = this.freeCells.filter(cell => cell === null).length;
+    const emptyTableauPiles = this.tableau.filter(pile => pile.length === 0).length;
+
+    // Формула: (emptyFreeCells + 1) * (2^emptyTableauPiles)
+    return (emptyFreeCells + 1) * Math.pow(2, emptyTableauPiles);
+  }
+
+  /**
+   * Перевірити чи послідовність карт валідна для переміщення
+   */
+  isValidSequence(cards, fromTableauIndex) {
+    if (!cards || cards.length === 0) return false;
+    if (cards.length > this.getMaxMovableCards()) return false;
+
+    // Перевірка чи карти формують валідну послідовність
+    for (let i = 0; i < cards.length - 1; i++) {
+      const currentCard = cards[i];
+      const nextCard = cards[i + 1];
+
+      if (this.config.moveRule === MOVE_RULES.ALTERNATING_COLOR) {
+        // Різний колір і на один менше
+        if (currentCard.getColor() === nextCard.getColor()) return false;
+        if (currentCard.getRankValue() !== nextCard.getRankValue() + 1) return false;
+      } else if (this.config.moveRule === MOVE_RULES.SAME_SUIT) {
+        // Та ж маст і на один менше
+        if (currentCard.suit !== nextCard.suit) return false;
+        if (currentCard.getRankValue() !== nextCard.getRankValue() + 1) return false;
+      }
+    }
+
+    // Перевірка чи послідовність дійсно є в кінці таблону
+    const pile = this.tableau[fromTableauIndex];
+    const startIndex = pile.length - cards.length;
+
+    for (let i = 0; i < cards.length; i++) {
+      if (pile[startIndex + i].getId() !== cards[i].getId()) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Перемістити послідовність карт
+   */
+  moveSequence(fromTableauIndex, toTableauIndex, cardCount) {
+    const fromPile = this.tableau[fromTableauIndex];
+    const toPile = this.tableau[toTableauIndex];
+
+    if (cardCount > fromPile.length) {
+      return { success: false, error: 'Немає стільки карт' };
+    }
+
+    if (cardCount > this.getMaxMovableCards()) {
+      return { success: false, error: 'Забагато карт для переміщення' };
+    }
+
+    const cardsToMove = fromPile.slice(fromPile.length - cardCount);
+
+    // Перевірити чи послідовність валідна
+    if (!this.isValidSequence(cardsToMove, fromTableauIndex)) {
+      return { success: false, error: 'Послідовність карт не валідна' };
+    }
+
+    // Перевірити чи можна покласти на призначення
+    if (toPile.length > 0) {
+      const destinationCard = toPile[toPile.length - 1];
+      const firstCard = cardsToMove[0];
+
+      if (!this.isValidTableauMove(firstCard, destinationCard)) {
+        return { success: false, error: 'Недозволений хід' };
+      }
+    }
+
+    // Виконуємо переміщення
+    const removedCards = fromPile.splice(fromPile.length - cardCount, cardCount);
+    toPile.push(...removedCards);
+
+    // Зберігаємо хід
+    this.moveHistory.push({
+      from: { type: 'tableau', index: fromTableauIndex },
+      to: { type: 'tableau', index: toTableauIndex },
+      cards: cardsToMove.map(card => card.toJSON()),
+      type: 'sequence'
+    });
+
+    // Перевіряємо перемогу
+    if (this.isGameWon()) {
+      this.gameWon = true;
+    }
+
+    return {
+      success: true,
+      data: {
+        cardsMoved: cardCount,
+        from: fromTableauIndex,
+        to: toTableauIndex,
+        gameState: this.toJSON()
+      }
+    };
   }
 
   /**
@@ -156,6 +267,57 @@ class BaseGame {
         this.foundations[location.key].push(card);
         break;
     }
+  }
+
+  /**
+   * Відкат останнього ходу
+   */
+  undoMove() {
+    if (this.moveHistory.length === 0) {
+      return { success: false, error: 'Немає ходів для відкату' };
+    }
+
+    const lastMove = this.moveHistory.pop();
+
+    // Відкат залежить від типу ходу
+    if (lastMove.type === 'sequence') {
+      // Для послідовності карт треба зрозуміти з якого таблону в який
+      return this.undoSequenceMove(lastMove);
+    }
+
+    // Звичайний хід однієї карти
+    const cardJSON = lastMove.card;
+    const from = lastMove.from;
+    const to = lastMove.to;
+
+    // Переміщуємо карту назад
+    const card = this.getCard({ type: to.type, index: to.index, key: to.key });
+    if (!card) {
+      return { success: false, error: 'Не вдалося знайти карту для відкату' };
+    }
+
+    this.removeCard({ type: to.type, index: to.index, key: to.key });
+    this.addCard(from, card);
+
+    return { success: true, data: this.toJSON() };
+  }
+
+  /**
+   * Відкат послідовності карт
+   */
+  undoSequenceMove(move) {
+    const fromIndex = move.from.index;
+    const toIndex = move.to.index;
+    const cards = move.cards.map(cardJSON => Card.fromJSON(cardJSON));
+
+    // Переміщуємо карти назад
+    const toPile = this.tableau[toIndex];
+    const movedCards = toPile.splice(toPile.length - cards.length, cards.length);
+
+    const fromPile = this.tableau[fromIndex];
+    fromPile.push(...movedCards);
+
+    return { success: true, data: this.toJSON() };
   }
 
   /**
@@ -218,6 +380,84 @@ class BaseGame {
     const totalCards = Object.values(this.foundations)
       .reduce((sum, pile) => sum + pile.length, 0);
     return totalCards === (52 * this.config.decks);
+  }
+
+  /**
+   * Перевірка програшу (немає можливих ходів)
+   */
+  isGameLost() {
+    // Перевіряємо чи є можливі ходи з таблону
+    for (let tableauIndex = 0; tableauIndex < this.tableau.length; tableauIndex++) {
+      const pile = this.tableau[tableauIndex];
+      if (pile.length === 0) continue;
+
+      const card = pile[pile.length - 1];
+
+      // Чи можна покласти на вільну комірку
+      const emptyFreeCell = this.freeCells.findIndex(cell => cell === null);
+      if (emptyFreeCell !== -1) return false; // Є хід
+
+      // Чи можна покласти в фундамент
+      for (const [foundationKey, foundationPile] of Object.entries(this.foundations)) {
+        if (this.isValidFoundationMove(card, foundationPile)) {
+          return false; // Є хід
+        }
+      }
+
+      // Чи можна покласти на інший таблон
+      for (let i = 0; i < this.tableau.length; i++) {
+        if (i === tableauIndex) continue; // Той самий таблон
+
+        const destPile = this.tableau[i];
+        if (destPile.length === 0) {
+          // На порожній таблон - перевіряємо макс. карт
+          const maxCards = this.getMaxMovableCards();
+          if (pile.length <= maxCards) return false; // Є хід
+        } else {
+          const destCard = destPile[destPile.length - 1];
+          if (this.isValidTableauMove(card, destCard)) {
+            return false; // Є хід
+          }
+        }
+      }
+
+      // Чи можна перемістити послідовність карт
+      const maxMovable = this.getMaxMovableCards();
+      if (pile.length > 1 && pile.length <= maxMovable) {
+        const sequence = pile.slice(pile.length - maxMovable);
+        if (this.isValidSequence(sequence, tableauIndex)) {
+          return false; // Є хід
+        }
+      }
+    }
+
+    // Перевіряємо чи є можливі ходи з вільних комірок
+    for (let freeCellIndex = 0; freeCellIndex < this.freeCells.length; freeCellIndex++) {
+      const card = this.freeCells[freeCellIndex];
+      if (!card) continue;
+
+      // Чи можна покласти на таблон
+      for (let i = 0; i < this.tableau.length; i++) {
+        const destPile = this.tableau[i];
+        if (destPile.length === 0) return false; // На порожній таблон завжди можна
+
+        const destCard = destPile[destPile.length - 1];
+        if (this.isValidTableauMove(card, destCard)) {
+          return false; // Є хід
+        }
+      }
+
+      // Чи можна покласти в фундамент
+      for (const [foundationKey, foundationPile] of Object.entries(this.foundations)) {
+        if (this.isValidFoundationMove(card, foundationPile)) {
+          return false; // Є хід
+        }
+      }
+    }
+
+    // Якщо дійшли сюди - немає можливих ходів
+    this.gameLost = true;
+    return true;
   }
 
   /**

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 FreeCell - Завантажити гру</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 700px;
+        }
+        h1 { margin: 0 0 20px 0; font-size: 2.5em; }
+        p { margin: 10px 0; opacity: 0.9; line-height: 1.6; }
+        .download-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            text-decoration: none;
+            padding: 20px 50px;
+            border-radius: 30px;
+            font-size: 20px;
+            margin-top: 30px;
+            display: inline-block;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(76,175,80,0.3);
+        }
+        .download-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(76,175,80,0.5);
+        }
+        .steps {
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            text-align: left;
+        }
+        .steps h3 { margin-bottom: 15px; color: #ffd700; }
+        .steps ol {
+            padding-left: 25px;
+            line-height: 1.8;
+        }
+        .steps li { margin: 10px 0; }
+        .highlight {
+            background: rgba(255,215,0,0.2);
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: #ffd700;
+            font-weight: bold;
+        }
+        .info {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(33,150,243,0.2);
+            border: 1px solid #2196F3;
+            border-radius: 10px;
+            font-size: 0.95em;
+        }
+        @media (max-width: 600px) {
+            .container { padding: 30px 20px; }
+            h1 { font-size: 2em; }
+            .download-btn { padding: 15px 30px; font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 FreeCell Demo</h1>
+        <p>Безкоштовна версія класичної гри FreeCell!</p>
+        
+        <a href="index.html" download="freecell-game.html" class="download-btn">
+            ⬇️ ЗАВАНТАЖИТИ ГРУ
+        </a>
+        
+        <div class="steps">
+            <h3>📋 Як почати:</h3>
+            <ol>
+                <li>Натисни кнопку <span class="highlight">"ЗАВАНТАЖИТИ ГРУ"</span> вище</li>
+                <li>Збережи файл на комп'ютер</li>
+                <li>Натисни <span class="highlight">двічі</span> по завантаженому файлу</li>
+                <li>Грай! 🎉</li>
+            </ol>
+        </div>
+        
+        <div class="info">
+            <strong>ℹ️ Інформація:</strong>
+            <ul style="padding-left: 20px; margin-top: 10px;">
+                <li>Розмір файлу: ~25 KB</li>
+                <li>Інтернет не потрібен (працює офлайн)</li>
+                <li>Працює на будь-якому браузері</li>
+                <li>Всього 52 карти в стандартній колоді</li>
+            </ul>
+        </div>
+        
+        <p style="margin-top: 25px; font-size: 0.9em; opacity: 0.7;">
+            Грай скільки хочеш, безкоштовно і без реєстрації!
+        </p>
+    </div>
+</body>
+</html>

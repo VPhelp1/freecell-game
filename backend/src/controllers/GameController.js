@@ -89,15 +89,114 @@ class GameController {
   }
 
   /**
+   * Перемістити послідовність карт
+   */
+  moveSequence(req, res) {
+    try {
+      const { gameId } = req.params;
+      const { fromTableauIndex, toTableauIndex, cardCount } = req.body;
+
+      const game = this.games.get(gameId);
+
+      if (!game) {
+        return res.status(404).json({
+          success: false,
+          error: 'Гру не знайдено'
+        });
+      }
+
+      if (typeof fromTableauIndex !== 'number' || typeof toTableauIndex !== 'number') {
+        return res.status(400).json({
+          success: false,
+          error: 'Не вказано індекси таблону'
+        });
+      }
+
+      if (typeof cardCount !== 'number' || cardCount < 1) {
+        return res.status(400).json({
+          success: false,
+          error: 'Не вказано кількість карт або неправильна кількість'
+        });
+      }
+
+      const result = game.moveSequence(fromTableauIndex, toTableauIndex, cardCount);
+
+      if (result.success) {
+        // Перевіряємо програш після кожного ходу
+        if (game.isGameLost()) {
+          res.json({
+            success: true,
+            data: {
+              ...result.data,
+              gameLost: true
+            }
+          });
+        } else {
+          res.json({
+            success: true,
+            data: result.data
+          });
+        }
+      } else {
+        res.status(400).json({
+          success: false,
+          error: result.error
+        });
+      }
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Відкатити останній хід
+   */
+  undoMove(req, res) {
+    try {
+      const { gameId } = req.params;
+      const game = this.games.get(gameId);
+
+      if (!game) {
+        return res.status(404).json({
+          success: false,
+          error: 'Гру не знайдено'
+        });
+      }
+
+      const result = game.undoMove();
+
+      if (result.success) {
+        res.json({
+          success: true,
+          data: result.data
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          error: result.error
+        });
+      }
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+
+  /**
    * Зробити хід
    */
   makeMove(req, res) {
     try {
       const { gameId } = req.params;
       const { from, to } = req.body;
-      
+
       const game = this.games.get(gameId);
-      
+
       if (!game) {
         return res.status(404).json({
           success: false,
@@ -115,6 +214,9 @@ class GameController {
       const result = game.makeMove(from, to);
 
       if (result.success) {
+        // Перевіряємо програш після кожного ходу
+        game.isGameLost();
+
         res.json({
           success: true,
           data: {
