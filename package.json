@@ -1,26 +1,10 @@
 {
   "name": "freecell-game",
   "version": "1.0.0",
-  "description": "FreeCell Variants - Full stack game with backend and frontend",
-  "main": "vercel-server.js",
+  "description": "FreeCell card game - 4 variants",
   "scripts": {
-    "start": "node vercel-server.js",
-    "dev": "node vercel-server.js",
-    "backend-dev": "cd backend && node src/server.js"
+    "build": "echo 'Static site - no build needed'"
   },
-  "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "uuid": "^9.0.0"
-  },
-  "engines": {
-    "node": ">=18.x"
-  },
-  "keywords": [
-    "freecell",
-    "card-games",
-    "web-game"
-  ],
-  "author": "VPhelp1",
+  "keywords": ["freecell", "card-game", "javascript"],
   "license": "MIT"
 }

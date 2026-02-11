@@ -1,0 +1,8 @@
+backend
+api
+node_modules
+.env
+*.log
+deploy/
+games/
+docs/
