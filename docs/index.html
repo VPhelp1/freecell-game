@@ -240,7 +240,7 @@
 
     <script>
         let currentGameId = null;
-        const API_BASE = '/api/games';
+        const API_BASE = window.location.origin + '/api/games';
 
         // Перевірка API при завантаженні
         window.addEventListener('load', async () => {

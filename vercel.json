@@ -2,25 +2,30 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend/src/server.js",
+      "src": "vercel-server.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "public/**/*",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "backend/src/server.js"
+      "dest": "/vercel-server.js"
+    },
+    {
+      "src": "/docs/(.*)",
+      "dest": "/docs/$1"
+    },
+    {
+      "src": "/play",
+      "dest": "/vercel-server.js"
+    },
+    {
+      "src": "/standalone",
+      "dest": "/vercel-server.js"
     },
     {
       "src": "/(.*)",
-      "dest": "public/$1"
+      "dest": "/vercel-server.js"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
