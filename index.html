@@ -2,164 +2,377 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎮 FreeCell - Full Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>🎮 FreeCell</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white; min-height: 100vh; padding: 20px;
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
-        .container { max-width: 1400px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { font-size: 3em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-        .header p { font-size: 1.2em; opacity: 0.9; margin-bottom: 15px; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a472a;
+            color: #333;
+            min-height: 100vh;
+            padding: 10px;
+            touch-action: manipulation;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        .header { 
+            text-align: center; 
+            margin-bottom: 10px; 
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .header h1 { 
+            font-size: 1.5em; 
+            margin-bottom: 5px; 
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .header p { 
+            font-size: 0.9em; 
+            color: #e8e8e8;
+            opacity: 0.9; 
+        }
         .game-selector { 
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
-            gap: 20px; margin: 30px 0; 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 8px; 
+            margin: 10px 0;
+        }
+        @media (max-width: 600px) {
+            .game-selector {
+                grid-template-columns: 1fr;
+            }
         }
         .game-card { 
-            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); 
-            border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.2);
-            cursor: pointer; transition: all 0.3s ease;
+            background: #2d5a3d;
+            border: 2px solid #3d7a4d;
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
         }
-        .game-card:hover { transform: translateY(-5px); border-color: #4CAF50; }
-        .game-card h3 { color: #ffd700; margin-bottom: 10px; font-size: 1.4em; }
-        .game-card p { margin-bottom: 15px; font-size: 0.95em; opacity: 0.9; }
+        .game-card:hover, .game-card:active {
+            background: #3d7a4d;
+            border-color: #4d8a5d;
+            transform: scale(1.02);
+        }
+        .game-card h3 { 
+            color: #ffd700; 
+            margin-bottom: 8px; 
+            font-size: 1.1em;
+        }
+        .game-card p { 
+            margin-bottom: 8px; 
+            font-size: 0.85em; 
+            color: #e8e8e8;
+            line-height: 1.3;
+        }
+        .badge {
+            background: rgba(255,215,0,0.2);
+            border: 1px solid #ffd700;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.75em;
+            color: #ffd700;
+            display: inline-block;
+        }
         .game-controls { 
-            display: flex; gap: 10px; justify-content: center; margin: 20px 0; flex-wrap: wrap;
+            display: flex; 
+            gap: 8px; 
+            justify-content: center; 
+            margin: 10px 0; 
+            flex-wrap: wrap;
         }
         .game-controls button { 
-            background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
-            color: white; padding: 12px 24px; border-radius: 25px; cursor: pointer;
-            font-size: 16px; transition: all 0.3s ease;
+            background: #4CAF50;
+            border: none;
+            color: white; 
+            padding: 10px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        .game-controls button:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }
-        .game-controls button.primary { background: linear-gradient(45deg, #4CAF50, #45a049); border: none; }
+        .game-controls button:hover, .game-controls button:active {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+        .game-controls button.secondary {
+            background: #2196F3;
+        }
         
         .game-board { 
-            background: rgba(255,255,255,0.1); border-radius: 15px; 
-            padding: 20px; margin: 20px 0; display: none;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px; 
+            padding: 10px; 
+            margin: 10px 0;
+            display: none;
         }
-        .board-section { background: rgba(0,0,0,0.2); border-radius: 10px; padding: 15px; margin: 10px 0; }
-        .board-section h3 { margin-bottom: 15px; font-size: 1.2em; color: #ffd700; text-align: center; }
+        .board-section { 
+            background: rgba(0,0,0,0.3); 
+            border-radius: 8px; 
+            padding: 10px; 
+            margin: 8px 0;
+        }
+        .board-section h3 { 
+            margin-bottom: 10px; 
+            font-size: 1em; 
+            color: #ffd700;
+            text-align: center;
+        }
         
-        .foundations { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .foundations { 
+            display: flex; 
+            gap: 6px; 
+            flex-wrap: wrap; 
+            justify-content: center;
+        }
         .foundation-slot { 
-            width: 80px; height: 120px; border: 2px dashed rgba(255,255,255,0.3);
-            border-radius: 8px; display: flex; align-items: center; justify-content: center;
-            font-size: 2em; cursor: pointer; transition: all 0.3s ease;
-            background: rgba(0,0,0,0.1);
+            width: 50px; 
+            height: 75px; 
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 6px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(0,0,0,0.4);
         }
-        .foundation-slot:hover { border-color: #4CAF50; background: rgba(76,175,80,0.2); }
+        .foundation-slot:hover, .foundation-slot:active { 
+            border-color: #4CAF50; 
+            background: rgba(76,175,80,0.3);
+        }
+        @media (max-width: 400px) {
+            .foundation-slot {
+                width: 40px;
+                height: 60px;
+                font-size: 1.2em;
+            }
+        }
         
-        .free-cells { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .free-cells { 
+            display: flex; 
+            gap: 6px; 
+            flex-wrap: wrap; 
+            justify-content: center;
+        }
         .free-cell-slot { 
-            width: 80px; height: 120px; border: 2px dashed rgba(255,255,255,0.3);
-            border-radius: 8px; display: flex; align-items: center; justify-content: center;
-            font-size: 2em; cursor: pointer; transition: all 0.3s ease;
-            background: rgba(0,0,0,0.1);
+            width: 50px; 
+            height: 75px; 
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 6px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(0,0,0,0.4);
         }
-        .free-cell-slot:hover { border-color: #4CAF50; background: rgba(76,175,80,0.2); }
+        .free-cell-slot:hover, .free-cell-slot:active { 
+            border-color: #4CAF50; 
+            background: rgba(76,175,80,0.3);
+        }
+        @media (max-width: 400px) {
+            .free-cell-slot {
+                width: 40px;
+                height: 60px;
+                font-size: 1.2em;
+            }
+        }
         
-        .tableau { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-        .tableau-pile { 
-            min-width: 90px; border: 2px solid rgba(255,255,255,0.2);
-            border-radius: 8px; padding: 10px; min-height: 400px;
-            background: rgba(0,0,0,0.1); cursor: pointer;
-            transition: all 0.3s ease;
+        .tableau { 
+            display: flex; 
+            gap: 6px; 
+            flex-wrap: wrap; 
+            justify-content: center;
+            overflow-x: auto;
+            padding: 5px;
         }
-        .tableau-pile:hover { border-color: #4CAF50; background: rgba(76,175,80,0.2); }
+        .tableau-pile { 
+            min-width: 45px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            padding: 6px 4px;
+            min-height: 250px;
+            background: rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .tableau-pile:hover, .tableau-pile:active { 
+            border-color: #4CAF50; 
+            background: rgba(76,175,80,0.2);
+        }
+        @media (max-width: 400px) {
+            .tableau-pile {
+                min-width: 40px;
+                min-height: 200px;
+                padding: 4px 3px;
+            }
+        }
         
         .card { 
-            width: 70px; height: 100px; background: white; border-radius: 8px;
-            margin: -30px 0 0 0; padding: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            font-weight: bold; cursor: pointer; transition: all 0.3s ease;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 42px; 
+            height: 63px; 
+            background: white; 
+            border-radius: 4px;
+            margin: -15px 0 0 0; 
+            padding: 4px 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            font-weight: bold; 
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
             user-select: none;
+            -webkit-user-select: none;
         }
         .card:first-child { margin: 0; }
-        .card:hover { transform: translateY(-10px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 10; }
+        .card:hover, .card:active {
+            transform: translateY(-5px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+            z-index: 10;
+        }
         .card.red { color: #d32f2f; }
         .card.black { color: #212121; }
-        .card.rank { font-size: 1.2em; margin-bottom: 5px; }
-        .card.suit { font-size: 1.5em; }
-        .card.selected { transform: translateY(-15px); box-shadow: 0 8px 20px rgba(76,175,80,0.5); border: 3px solid #4CAF50; }
+        .card.rank { 
+            font-size: 0.9em; 
+            margin-bottom: 2px;
+            line-height: 1;
+        }
+        .card.suit { 
+            font-size: 1.1em; 
+            line-height: 1;
+        }
+        .card.selected { 
+            transform: translateY(-8px); 
+            box-shadow: 0 4px 12px rgba(76,175,80,0.6); 
+            border: 2px solid #4CAF50;
+        }
+        @media (max-width: 400px) {
+            .card {
+                width: 36px;
+                height: 54px;
+                margin: -13px 0 0 0;
+                padding: 3px 2px;
+            }
+            .card.rank {
+                font-size: 0.75em;
+            }
+            .card.suit {
+                font-size: 0.9em;
+            }
+        }
         
         .status-bar {
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin: 15px 0;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            background: rgba(0,0,0,0.3);
+            padding: 8px 12px; 
+            border-radius: 8px; 
+            margin: 10px 0;
         }
-        .status-text { font-size: 1.1em; font-weight: bold; }
+        .status-text { 
+            font-size: 0.95em; 
+            font-weight: bold; 
+            color: #fff;
+        }
         .status-playing { color: #4CAF50; }
         .status-won { color: #FFD700; }
         .status-lost { color: #f44336; }
         
-        .move-counter { font-size: 0.9em; opacity: 0.8; }
-        
-        .badge {
-            background: rgba(255,215,0,0.2);
-            border: 1px solid #ffd700;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            color: #ffd700;
-            display: inline-block;
-            margin-top: 10px;
+        .move-counter { 
+            font-size: 0.85em; 
+            color: #e8e8e8;
         }
         
-        @media (max-width: 768px) {
-            .header h1 { font-size: 2em; }
-            .card { width: 60px; height: 90px; }
-            .foundation-slot, .free-cell-slot { width: 70px; height: 100px; }
-            .game-controls { flex-direction: column; }
+        .back-button {
+            background: #2196F3;
+            margin: 8px 0;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .back-button:hover, .back-button:active {
+            background: #1976D2;
+        }
+        
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.2em; }
+            .header p { font-size: 0.8em; }
+            .game-controls button {
+                padding: 8px 14px;
+                font-size: 0.8em;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎮 FreeCell - Full Game</h1>
-            <p>4 варіанти класичної гри FreeCell! Працює повністю в браузері!</p>
+            <h1>🎮 FreeCell</h1>
+            <p>4 варіанти класичної гри!</p>
         </div>
 
         <div class="game-selector" id="gameSelector">
             <div class="game-card" onclick="startGame('freecell')">
-                <h3>🃏 Classic FreeCell</h3>
-                <p>Класичний FreeCell - перемістіть всі карти в фундаменти, будучи в масті від Туза до Короля</p>
-                <span class="badge">4 FreeCells • 8 Стовпці</span>
+                <h3>🃏 Classic</h3>
+                <p>Класичний FreeCell</p>
+                <span class="badge">4 Комірки</span>
             </div>
             <div class="game-card" onclick="startGame('bakers')">
-                <h3>🥧 Baker's Game</h3>
-                <p>Як FreeCell, але карти в таблоні можна клaстити тільки в тій самій масті</p>
-                <span class="badge">4 FreeCells • 8 Стовпці • Сама масть</span>
+                <h3>🥧 Baker's</h3>
+                <p>Та сама масть</p>
+                <span class="badge">4 Комірки</span>
             </div>
             <div class="game-card" onclick="startGame('eightoff')">
                 <h3>8️⃣ Eight Off</h3>
-                <p>8 вільних комірок замість 4! Більше свободи, більше стратегії</p>
-                <span class="badge">8 FreeCells • 8 Стовпці</span>
+                <p>8 вільних комірок</p>
+                <span class="badge">8 Комірок</span>
             </div>
             <div class="game-card" onclick="startGame('double')">
-                <h3>👯 Double FreeCell</h3>
-                <p>Подвійна колода! 104 карти, 10 стовпців, 8 фундаментів</p>
-                <span class="badge">4 FreeCells • 10 Стовпці • 2 Колоди</span>
+                <h3>👯 Double</h3>
+                <p>Подвійна колода</p>
+                <span class="badge">104 Карт</span>
             </div>
         </div>
 
         <div class="game-board" id="gameBoard">
             <div class="header">
                 <h2 id="gameTitle">🎮 Гра</h2>
-                <button class="game-controls button primary" onclick="showGameSelector()" style="margin-top: 10px;">
-                    ← Повернутися до меню
+                <button class="back-button" onclick="showGameSelector()">
+                    ← Меню
                 </button>
             </div>
 
             <div class="game-controls">
-                <button class="primary" onclick="newGame()">🎮 Нова гра</button>
-                <button onclick="undoMove()">↩️ Undo</button>
-                <button onclick="autoPlay()">🤖 Автоход</button>
-                <button onclick="showHelp()">❓ Довідка</button>
+                <button onclick="newGame()">🎮 Нова</button>
+                <button class="secondary" onclick="undoMove()">↩️ Undo</button>
+                <button class="secondary" onclick="autoPlay()">🤖 Авто</button>
+                <button class="secondary" onclick="showHelp()">❓</button>
             </div>
 
             <div class="status-bar">
@@ -173,19 +386,18 @@
             </div>
             
             <div class="board-section">
-                <h3>🔓 Вільні комірки</h3>
+                <h3>🔓 Вільні</h3>
                 <div class="free-cells" id="freeCells"></div>
             </div>
             
             <div class="board-section">
-                <h3>📋 Таблон (натисни щоб обрати)</h3>
+                <h3>📋 Таблон</h3>
                 <div class="tableau" id="tableau"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // Game Config
         const GAME_CONFIGS = {
             freecell: {
                 name: 'Classic FreeCell',
@@ -221,7 +433,6 @@
             }
         };
 
-        // Game State
         let currentConfig = null;
         const gameState = {
             foundations: {},
@@ -239,7 +450,6 @@
         const RANK_VALUES = { 'A': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13 };
         const SUIT_SYMBOLS = { hearts: '♥', diamonds: '♦', clubs: '♣', spades: '♠' };
 
-        // Start game
         function startGame(gameType) {
             currentConfig = GAME_CONFIGS[gameType];
             initGameState();
@@ -255,7 +465,6 @@
             document.getElementById('gameBoard').style.display = 'none';
         }
 
-        // Init game state
         function initGameState() {
             gameState.foundations = {};
             gameState.freeCells = new Array(currentConfig.freeCells).fill(null);
@@ -271,7 +480,6 @@
             }
         }
 
-        // Create deck(s)
         function createDeck() {
             const deck = [];
             for (let d = 0; d < currentConfig.decks; d++) {
@@ -284,7 +492,6 @@
             return shuffle(deck);
         }
 
-        // Shuffle deck
         function shuffle(array) {
             const arr = [...array];
             for (let i = arr.length - 1; i > 0; i--) {
@@ -294,7 +501,6 @@
             return arr;
         }
 
-        // Deal cards
         function dealCards() {
             const deck = createDeck();
             let cardIndex = 0;
@@ -306,19 +512,16 @@
             }
         }
 
-        // New game
         function newGame() {
             initGameState();
             dealCards();
             updateDisplay();
         }
 
-        // Get suit color
         function getSuitColor(suit) {
             return (suit === 'hearts' || suit === 'diamonds') ? 'red' : 'black';
         }
 
-        // Check if card can move to tableau
         function canMoveToTableau(card, targetPile) {
             if (targetPile.length === 0) return true;
             
@@ -333,7 +536,6 @@
             }
         }
 
-        // Check if card can move to foundation
         function canMoveToFoundation(card, foundationKey) {
             const foundation = gameState.foundations[foundationKey];
             if (foundation.length === 0) {
@@ -344,7 +546,6 @@
             return card.suit === topCard.suit && card.value === topCard.value + 1;
         }
 
-        // Move card to foundation
         function moveToFoundation(card, fromLocation) {
             for (let key of Object.keys(gameState.foundations)) {
                 if (canMoveToFoundation(card, key)) {
@@ -368,7 +569,6 @@
             return false;
         }
 
-        // Move card to tableau
         function moveToTableau(card, fromLocation, toPileIndex) {
             const targetPile = gameState.tableau[toPileIndex];
             if (!canMoveToTableau(card, targetPile)) return false;
@@ -389,7 +589,6 @@
             return true;
         }
 
-        // Move card to free cell
         function moveToFreeCell(card, fromLocation, toCellIndex) {
             if (gameState.freeCells[toCellIndex] !== null) return false;
             
@@ -407,7 +606,6 @@
             return true;
         }
 
-        // Save state for undo
         function saveState() {
             gameState.moveHistory.push({
                 foundations: JSON.parse(JSON.stringify(gameState.foundations)),
@@ -417,7 +615,6 @@
             });
         }
 
-        // Undo last move
         function undoMove() {
             if (gameState.moveHistory.length === 0) return;
             
@@ -433,7 +630,6 @@
             updateDisplay();
         }
 
-        // Handle card click
         function handleCardClick(card, location) {
             if (gameState.gameWon || gameState.gameLost) return;
             
@@ -457,7 +653,6 @@
             updateDisplay();
         }
 
-        // Handle empty space click
         function handleEmptySpaceClick(location) {
             if (!gameState.selectedCard || gameState.gameWon || gameState.gameLost) return;
             
@@ -477,7 +672,6 @@
             updateDisplay();
         }
 
-        // Auto play
         function autoPlay() {
             if (gameState.gameWon || gameState.gameLost) return;
             
@@ -509,7 +703,6 @@
             }
         }
 
-        // Check win condition
         function checkWinCondition() {
             const totalInFoundations = Object.values(gameState.foundations)
                 .reduce((sum, foundation) => sum + foundation.length, 0);
@@ -524,7 +717,6 @@
             }
         }
 
-        // Update display
         function updateDisplay() {
             updateFoundations();
             updateFreeCells();
@@ -583,7 +775,7 @@
                 pileDiv.onclick = () => handleEmptySpaceClick({ type: 'tableau', index: pileIndex });
                 
                 if (pile.length === 0) {
-                    pileDiv.innerHTML = '<div style="opacity:0.3; text-align:center; padding:20px;">Порожньо</div>';
+                    pileDiv.innerHTML = '<div style="opacity:0.3; text-align:center; padding:10px; font-size:0.7em;">Порожньо</div>';
                 } else {
                     pile.forEach((card, cardIndex) => {
                         const cardDiv = document.createElement('div');
@@ -629,26 +821,19 @@
                 : 'Карту можна клaстити поверх іншої якщо різного кольору і на один пункт менша';
             
             alert(`
-🎮 ${currentConfig.name} - Довідка
+🎮 ${currentConfig.name}
 
-📋 Мета гри:
-Перемістити всі карти в фундаменти за мастями від Туза до Короля.
+📋 Мета: Всі карти в фундаменти (A → K)
 
-🔓 Вільні комірки:
-Використовуйте для тимчасового зберігання однієї карти (${currentConfig.freeCells} комірок).
+🔓 Вільні: ${currentConfig.freeCells} комірок
+📋 Стовпці: ${currentConfig.tableauPiles}
 
-📋 Правила переміщення в таблоні:
-${ruleText}
+Таблон: ${ruleText}
 
-🏆 Фундаменти:
-Карти переміщуються за мастями
-Послідовність: A → 2 → 3 → ... → K
+Фундаменти: Карти по мастях A → K
 
-🤖 Автоход:
-Автоматично переміщує карти в фундаменти, якщо це можливо.
-
-↩️ Undo:
-Скасовує останній хід.
+🤖 Автоход - автоматичні ходи
+↩️ Undo - скасування
 
 Грайте і перемагайте! 🎉
             `);
