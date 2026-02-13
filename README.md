@@ -12,10 +12,11 @@ FreeCell Variants - 4 different variants of classic FreeCell card game:
 - **Eight Off** - 8 free cells available
 - **Double FreeCell** - Double deck with 104 cards
 
-## 🚀 Deployment
+## 🚀 Play Now
 
+- **🎮 LIVE GAME:** https://vphelp1.github.io/freecell-game/ *(Working)*
 - **GitHub:** https://github.com/VPhelp1/freecell-game
-- **Vercel:** https://freecell-game.vercel.app
+- **Vercel:** https://freecell-game.vercel.app *(Under maintenance)*
 
 ## 🎯 Features
 
